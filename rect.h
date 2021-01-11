@@ -50,14 +50,6 @@ collision_box(const Rect<T> &a, const Rect<T> &b) noexcept {
     );
 }
 
-template<typename T> bool
-intersects(const Rect<T> &a, const Rect<T> &b) noexcept {
-    return !(b.x2() <= a.x
-        || b.y2() <= a.y
-        || b.x >= a.x2()
-        || b.y >= a.y2());
-}
-
 template<typename T, typename Container> void
 difference(const Rect<T> &lhs, const Rect<T> &rhs, Container &result)
     noexcept(noexcept(result.emplace_back(Rect{0, 0, 0, 0})))
