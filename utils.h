@@ -7,7 +7,7 @@
 #include "rect.h"
 
 template<typename ForwardIterator> auto
-bounding_box(ForwardIterator begin, ForwardIterator end) noexcept -> Rect<decltype(begin->x)> {
+bounding_box(ForwardIterator begin, ForwardIterator end) noexcept {
     assert(begin != end);
 
     auto min_x = begin->x;
@@ -35,7 +35,7 @@ bounding_box(ForwardIterator begin, ForwardIterator end) noexcept -> Rect<declty
 }
 
 template<typename ForwardIterator> auto
-total_area(ForwardIterator begin, ForwardIterator end) -> decltype(begin->x) {
+total_area(ForwardIterator begin, ForwardIterator end) {
     const auto box = bounding_box(begin, end);
 
     using size_type = decltype(box.x);
@@ -53,7 +53,7 @@ total_area(ForwardIterator begin, ForwardIterator end) -> decltype(begin->x) {
 }
 
 template<typename ForwardIterator> auto
-sum_areas(ForwardIterator begin, ForwardIterator end) noexcept -> decltype(begin->x) {
+sum_areas(ForwardIterator begin, ForwardIterator end) noexcept {
     using size_type = decltype(begin->x);
     return std::accumulate(begin, end, size_type{}, [] (auto acc, const auto &r) { return acc + r.area(); });
 }
