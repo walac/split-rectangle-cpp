@@ -7,30 +7,34 @@ template<typename T>
 struct Rect {
     T x, y, width, height;
 
-    Rect(T x, T y, T width, T height)
+    constexpr Rect() noexcept
+        : x(0), y(0), width(0), height(0)
+    {}
+
+    constexpr Rect(T x, T y, T width, T height) noexcept
         : x(x), y(y), width(width), height(height)
     {}
 
-    T x2() const noexcept {
+    constexpr T x2() const noexcept {
         return x + width;
     }
 
-    T y2() const noexcept {
+    constexpr T y2() const noexcept {
         return y + height;
     }
 
-    T area() const noexcept {
+    constexpr T area() const noexcept {
         return width * height;
     }
 
-    bool contains(const Rect &r) const noexcept {
+    constexpr bool contains(const Rect &r) const noexcept {
         return r.x >= x
             && r.y >= y
             && r.x2() <= x2()
             && r.y2() <= y2();
     }
 
-    bool intersects(const Rect &rhs) const noexcept {
+    constexpr bool intersects(const Rect &rhs) const noexcept {
         return !(rhs.x2() <= x
             || rhs.y2() <= y
             || rhs.x >= x2()
@@ -38,7 +42,7 @@ struct Rect {
     }
 };
 
-template<typename T> Rect<T>
+template<typename T> constexpr Rect<T>
 collision_box(const Rect<T> &a, const Rect<T> &b) noexcept {
     const auto x = std::max(a.x, b.x);
     const auto y = std::max(a.y, b.y);
@@ -81,20 +85,20 @@ difference(const Rect<T> &lhs, const Rect<T> &rhs, Container &result)
     }
 }
 
-template<typename T> bool
-operator==(const Rect<T> &lhs, const Rect<T> &rhs) {
+template<typename T> constexpr bool
+operator==(const Rect<T> &lhs, const Rect<T> &rhs) noexcept {
     return lhs.x == rhs.x
         && lhs.y == rhs.y
         && lhs.width == rhs.width
         && lhs.height == rhs.height;
 }
 
-template<typename T> bool
-operator!=(const Rect<T> &lhs, const Rect<T> &rhs) {
+template<typename T> constexpr bool
+operator!=(const Rect<T> &lhs, const Rect<T> &rhs) noexcept {
     return !(lhs == rhs);
 }
 
-template<typename T> bool
+template<typename T> constexpr bool
 operator<(const Rect<T> &lhs, const Rect<T> &rhs) noexcept {
     if (lhs.x < rhs.x)
         return true;
