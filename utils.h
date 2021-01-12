@@ -4,6 +4,7 @@
 #include <iterator>
 #include <algorithm>
 #include <numeric>
+#include <iostream>
 #include "rect.h"
 
 template<typename ForwardIterator> auto
@@ -56,6 +57,18 @@ template<typename ForwardIterator> auto
 sum_areas(ForwardIterator begin, ForwardIterator end) noexcept {
     using size_type = decltype(begin->x);
     return std::accumulate(begin, end, size_type{}, [] (auto acc, const auto &r) { return acc + r.area(); });
+}
+
+template<typename ForwardIterator> bool
+any_intersection(ForwardIterator begin, ForwardIterator end) noexcept {
+    for (auto first = begin; first != end; ++first) {
+        auto second = first;
+        for (++second; second != end; ++second)
+            if (first->intersects(*second))
+                return true;
+    }
+
+    return false;
 }
 
 namespace std {

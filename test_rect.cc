@@ -2,8 +2,8 @@
 #include <array>
 #include <tuple>
 #include <catch2/catch.hpp>
-#include "rect.h"
 #include "utils.h"
+#include "rect.h"
 
 namespace {
 template<typename T> auto
