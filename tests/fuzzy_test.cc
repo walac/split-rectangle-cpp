@@ -3,7 +3,6 @@
 #include <numeric>
 #include <iterator>
 #include <iostream>
-#include <assert.h>
 
 #include "utils.h"
 #include "split_rect.h"
@@ -33,11 +32,23 @@ int main() {
         auto rb = result.cbegin(); // result begin
         auto re = result.cend(); // result end
 
-        assert(!any_intersection(rb, re));
-        assert(bounding_box(rb, re) == bounding_box(tb, te));
-        assert(total_area(tb, te) == std::accumulate(rb, re, 0, [](auto acc, const auto &r) {
+        if (any_intersection(rb, re)) {
+            std::cerr << "any_intersection test failed\n";
+            return -1;
+        }
+
+        if (bounding_box(rb, re) != bounding_box(tb, te)) {
+            std::cerr << "bounding_box test failed\n";
+            return -1;
+        }
+
+        if (total_area(tb, te) != std::accumulate(rb, re, 0, [](auto acc, const auto &r) {
             return acc + r.area();
-        }));
+        }))
+        {
+            std::cerr << "area test failed\n";
+            return -1;
+        }
     }
 
     return 0;
