@@ -22,11 +22,11 @@ struct Event {
     EventType type;
 
     constexpr Event(const Rect<T> &r, EventType type, std::uint64_t id = 0) noexcept
-        : rect(r), type(type), id(id)
+        : rect(r), id(id), type(type)
     {}
 
     constexpr Event() noexcept
-        : type(EventType::ENTER), id(0)
+        : id(0), type(EventType::ENTER)
     {}
 };
 
