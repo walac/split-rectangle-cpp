@@ -64,7 +64,7 @@ operator==(const Event<T> &lhs, const Event<T> &rhs) noexcept {
     return lhs.type == rhs.type && lhs.rect == rhs.rect && lhs.id == rhs.id;
 }
 
-template<typename Iterator, typename OutIterator> void
+template<typename Iterator, typename OutIterator> OutIterator
 split_rectangles(Iterator begin, Iterator end, OutIterator result) {
     using rect_type = std::__remove_cvref_t<decltype(*begin)>;
     using size_type = decltype(begin->x);
@@ -148,5 +148,7 @@ split_rectangles(Iterator begin, Iterator end, OutIterator result) {
             intervals.erase(interval);
         }
     }
+
+    return result;
 }
 
