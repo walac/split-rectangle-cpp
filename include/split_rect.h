@@ -5,7 +5,6 @@
 #include <memory>
 #include <unordered_set>
 #include <queue>
-#include <type_traits>
 #include <algorithm>
 #include <boost/icl/interval_map.hpp>
 
@@ -64,30 +63,42 @@ operator==(const Event<T> &lhs, const Event<T> &rhs) noexcept {
     return lhs.type == rhs.type && lhs.rect == rhs.rect && lhs.id == rhs.id;
 }
 
-template<typename Iterator, typename OutIterator> OutIterator
-split_rectangles(Iterator begin, Iterator end, OutIterator result) {
-    using rect_type = std::__remove_cvref_t<decltype(*begin)>;
+template<
+    typename Iterator,
+    typename OutIterator,
+    template<typename T> typename Allocator = std::allocator
+>
+OutIterator split_rectangles(Iterator begin, Iterator end, OutIterator result) {
+    using rect_t = std::__remove_cvref_t<decltype(*begin)>;
     using size_type = decltype(begin->x);
-    using event_type = Event<size_type>;
+    using event_t = Event<size_type>;
 
     // queue of events
-    std::priority_queue<event_type, std::vector<event_type>> events;
+    std::priority_queue<
+        event_t,
+        std::vector<event_t, Allocator<event_t>>
+    > events;
 
     // control the events of rects that are no longer valid
     // this is necessary because a rect becomes invalid (because
     // we splitted it) in an enter event, we should mark the leave
     // event of this specific rectangle as invalid as well
-    std::unordered_set<std::uint64_t> removed;
+    std::unordered_set<
+        std::uint64_t,
+        std::hash<std::uint64_t>,
+        std::equal_to<std::uint64_t>,
+        Allocator<std::uint64_t>
+    > removed;
 
     std::uint64_t cur_id = 0;
     // create an enter and leave events for the rectangle
-    auto add_event = [&] (const rect_type &r) {
+    auto add_event = [&] (const rect_t &r) {
         const auto id = ++cur_id;
         events.emplace(r, EventType::ENTER, id);
         events.emplace(r, EventType::LEAVE, id);
     };
 
-    auto new_interval = [](const rect_type &r) {
+    auto new_interval = [](const rect_t &r) {
         return boost::icl::interval<size_type>::right_open(r.y, r.y2());
     };
 
@@ -95,12 +106,23 @@ split_rectangles(Iterator begin, Iterator end, OutIterator result) {
         add_event(r);
     });
 
-    boost::icl::interval_map<size_type, event_type> intervals;
+    boost::icl::interval_map<
+        size_type,
+        event_t,
+        boost::icl::partial_absorber,
+        ICL_COMPARE_INSTANCE(ICL_COMPARE_DEFAULT, size_type),
+        ICL_COMBINE_INSTANCE(boost::icl::inplace_plus, size_type),
+        ICL_SECTION_INSTANCE(boost::icl::inter_section, size_type),
+        ICL_INTERVAL_INSTANCE(ICL_INTERVAL_DEFAULT, size_type,
+            ICL_COMPARE_INSTANCE(ICL_COMPARE_DEFAULT, size_type)),
+        Allocator
+    > intervals;
+
     // the rects difference operations produces no more than 8 new rectangles
-    std::array<rect_type, 8> diffs;
+    std::array<rect_t, 8> diffs;
 
     while (!events.empty()) {
-        const event_type ev(events.top());
+        const event_t ev(events.top());
         events.pop();
 
         // skip if the rectangle was previously splitted
@@ -127,7 +149,7 @@ split_rectangles(Iterator begin, Iterator end, OutIterator result) {
                 add_event(collision_box(ev.rect, rintersect.rect));
 
                 auto dend = difference(ev.rect, rintersect.rect, diffs.begin());
-                dend = difference(rintersect.rect, ev.rect,dend);
+                dend = difference(rintersect.rect, ev.rect, dend);
 
                 std::for_each(diffs.begin(), dend, [&] (const auto &r) {
                     add_event(r);
