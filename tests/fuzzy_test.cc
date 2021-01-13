@@ -20,7 +20,7 @@ int main() {
         std::cout << "N=" << n << '\n';
 
         std::vector<rect_t> recs;
-        std::generate_n(std::back_inserter(recs), n, [&]() {
+        std::generate_n(std::back_inserter(recs), n, [&] {
             return rect_t(d(g), d(g), d(g), d(g));
         });
 
