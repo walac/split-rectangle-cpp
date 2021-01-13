@@ -9,7 +9,7 @@
 namespace {
 template<typename T> auto
 make_test_cases() noexcept {
-    return std::array<std::vector<Rect<T>>, 4> {
+    return std::array<std::vector<Rect<T>>, 5> {
         std::vector{
             Rect<T>
             {0, 0, 2, 2},
@@ -33,6 +33,13 @@ make_test_cases() noexcept {
         {
             {0, 0, 4, 4},
             {1, 1, 2, 2},
+        },
+        {
+            {3, 1, 4, 3},
+            {4, 5, 4, 2},
+            {1, 4, 2, 4},
+            {4, 5, 2, 2},
+            {5, 4, 4, 4},
         },
     };
 }
