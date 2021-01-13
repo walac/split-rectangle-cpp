@@ -54,20 +54,20 @@ collision_box(const Rect<T> &a, const Rect<T> &b) noexcept {
     );
 }
 
-template<typename T, typename Container> void
-difference(const Rect<T> &lhs, const Rect<T> &rhs, Container &result)
-    noexcept(noexcept(result.emplace_back(Rect{0, 0, 0, 0})))
-{
+template<typename T, typename Iterator> Iterator
+difference(const Rect<T> &lhs, const Rect<T> &rhs, Iterator out) {
+    using rect_t = Rect<T>;
+
     if (rhs.contains(lhs))
-        return;
+        return out;
 
     // compute the top rectangle
     if (rhs.y > lhs.y)
-        result.emplace_back(lhs.x, lhs.y, lhs.width, rhs.y - lhs.y);
+        *out++ = rect_t(lhs.x, lhs.y, lhs.width, rhs.y - lhs.y);
 
     // compute the bottom rectangle
     if (lhs.y2() > rhs.y2())
-        result.emplace_back(lhs.x, rhs.y2(), lhs.width, lhs.y2() - rhs.y2());
+        *out++ = rect_t(lhs.x, rhs.y2(), lhs.width, lhs.y2() - rhs.y2());
 
     const auto y1 = rhs.y > lhs.y ? rhs.y : lhs.y;
     const auto y2 = rhs.y2() < lhs.y2() ? rhs.y2() : lhs.y2();
@@ -77,12 +77,14 @@ difference(const Rect<T> &lhs, const Rect<T> &rhs, Container &result)
 
         // compute the left rectangle
         if (rhs.x > lhs.x)
-            result.emplace_back(lhs.x, y1, rhs.x - lhs.x, rc_height);
+            *out++ = rect_t(lhs.x, y1, rhs.x - lhs.x, rc_height);
 
         // compute the right rectangle
         if (lhs.x2() > rhs.x2())
-            result.emplace_back(rhs.x2(), y1, lhs.x2() - rhs.x2(), rc_height);
+            *out++ = rect_t(rhs.x2(), y1, lhs.x2() - rhs.x2(), rc_height);
     }
+
+    return out;
 }
 
 template<typename T> constexpr bool
@@ -113,7 +115,7 @@ template<typename T> std::vector<Rect<T>>
 operator-(const Rect<T> &lhs, const Rect<T> &rhs) {
     std::vector<Rect<T>> vec;
     vec.reserve(4);
-    difference(lhs, rhs, vec);
+    difference(lhs, rhs, std::back_inserter(vec));
     return vec;
 }
 

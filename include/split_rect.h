@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <queue>
 #include <type_traits>
+#include <algorithm>
 #include <boost/icl/interval_map.hpp>
 
 #include "rect.h"
@@ -95,8 +96,8 @@ split_rectangles(Iterator begin, Iterator end, OutIterator result) {
     });
 
     boost::icl::interval_map<size_type, event_type> intervals;
-    std::vector<rect_type> diffs;
-    diffs.reserve(8);
+    // the rects difference operations produces no more than 8 new rectangles
+    std::array<rect_type, 8> diffs;
 
     while (!events.empty()) {
         const event_type ev(events.top());
@@ -125,14 +126,12 @@ split_rectangles(Iterator begin, Iterator end, OutIterator result) {
                 // the list of rectangles to process
                 add_event(collision_box(ev.rect, rintersect.rect));
 
-                difference(ev.rect, rintersect.rect, diffs);
-                difference(rintersect.rect, ev.rect, diffs);
+                auto dend = difference(ev.rect, rintersect.rect, diffs.begin());
+                dend = difference(rintersect.rect, ev.rect,dend);
 
-                for_each(diffs.cbegin(), diffs.cend(), [&] (const auto &r) {
+                std::for_each(diffs.begin(), dend, [&] (const auto &r) {
                     add_event(r);
                 });
-
-                diffs.clear();
 
                 // the rectangles associated with these events no longer exist,
                 // so mark them as removed
