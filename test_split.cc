@@ -11,7 +11,8 @@ template<typename T> auto
 make_test_cases() noexcept {
     return std::array<std::vector<Rect<T>>, 4> {
         std::vector{
-            Rect<T>(0, 0, 2, 2),
+            Rect<T>
+            {0, 0, 2, 2},
             {1, 1, 2, 2},
         },
         {
@@ -78,6 +79,38 @@ test_ordering() {
         prio.pop();
     }
 }
+
+template<typename T> void
+test_no_intersection() {
+    std::vector recs{
+        Rect<T>
+        {0, 0, 1, 1},
+        {2, 2, 1, 1},
+        {3, 3, 1, 1},
+    };
+
+    std::sort(recs.begin(), recs.end());
+    std::vector<Rect<T>> result;
+    split_rectangles(recs.cbegin(), recs.cend(), std::back_inserter(result));
+    std::sort(result.begin(), result.end());
+    REQUIRE(result == recs);
+}
+
+template<typename T> void
+test_adjacent() {
+    std::vector recs{
+        Rect<T>
+        {0, 0, 1, 1},
+        {0, 1, 1, 1},
+        {1, 0, 1, 1},
+    };
+
+    std::sort(recs.begin(), recs.end());
+    std::vector<Rect<T>> result;
+    split_rectangles(recs.cbegin(), recs.cend(), std::back_inserter(result));
+    std::sort(result.begin(), result.end());
+    REQUIRE(result == recs);
+}
 }
 
 TEST_CASE("priority queue", "[split]") {
@@ -88,4 +121,14 @@ TEST_CASE("priority queue", "[split]") {
 TEST_CASE("split_rectangles", "[split]") {
     test_split_rectangles<int>();
     test_split_rectangles<unsigned int>();
+}
+
+TEST_CASE("no intersection", "[split]") {
+    test_no_intersection<int>();
+    test_no_intersection<unsigned int>();
+}
+
+TEST_CASE("adjacent rectangles", "[split]") {
+    test_adjacent<int>();
+    test_adjacent<unsigned int>();
 }
