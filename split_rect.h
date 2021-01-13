@@ -30,18 +30,16 @@ struct Event {
     {}
 };
 
-namespace std {
-    template<typename Os> Os&
-    operator<<(Os &os, EventType evt) {
-        os << "EventType::" << (evt == EventType::ENTER ? "ENTER" : "LEAVE");
-        return os;
-    }
+template<typename Os> Os&
+operator<<(Os &os, EventType evt) {
+    os << "EventType::" << (evt == EventType::ENTER ? "ENTER" : "LEAVE");
+    return os;
+}
 
-    template<typename Os, typename T> Os&
-    operator<<(Os &os, const Event<T> &evt) {
-        os << "Event(" << evt.rect << ", " << evt.type << ")";
-        return os;
-    }
+template<typename Os, typename T> Os&
+operator<<(Os &os, const Event<T> &evt) {
+    os << "Event(" << evt.rect << ", " << evt.type << ")";
+    return os;
 }
 
 // the logic here is inverted because priority_queue is a max heap
