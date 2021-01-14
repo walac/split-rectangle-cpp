@@ -5,40 +5,40 @@
 
 template<typename T>
 struct Rect {
-    T x, y, width, height;
+    T x, y, x2, y2;
 
     constexpr Rect() noexcept
-        : x(0), y(0), width(0), height(0)
+        : x(0), y(0), x2(0), y2(0)
     {}
 
     constexpr Rect(T x, T y, T width, T height) noexcept
-        : x(x), y(y), width(width), height(height)
+        : x(x), y(y), x2(x + width), y2(y + height)
     {}
 
-    constexpr T x2() const noexcept {
-        return x + width;
+    constexpr T width() const noexcept {
+        return x2 - x;
     }
 
-    constexpr T y2() const noexcept {
-        return y + height;
+    constexpr T height() const noexcept {
+        return y2 - y;
     }
 
     constexpr T area() const noexcept {
-        return width * height;
+        return width() * height();
     }
 
     constexpr bool contains(const Rect &r) const noexcept {
         return r.x >= x
             && r.y >= y
-            && r.x2() <= x2()
-            && r.y2() <= y2();
+            && r.x2 <= x2
+            && r.y2 <= y2;
     }
 
     constexpr bool intersects(const Rect &rhs) const noexcept {
-        return !(rhs.x2() <= x
-            || rhs.y2() <= y
-            || rhs.x >= x2()
-            || rhs.y >= y2());
+        return !(rhs.x2 <= x
+            || rhs.y2 <= y
+            || rhs.x >= x2
+            || rhs.y >= y2);
     }
 };
 
@@ -49,8 +49,8 @@ collision_box(const Rect<T> &a, const Rect<T> &b) noexcept {
     return Rect(
         x,
         y,
-        std::min(a.x2(), b.x2()) - x,
-        std::min(a.y2(), b.y2()) - y
+        std::min(a.x2, b.x2) - x,
+        std::min(a.y2, b.y2) - y
     );
 }
 
@@ -63,14 +63,14 @@ difference(const Rect<T> &lhs, const Rect<T> &rhs, Iterator out) {
 
     // compute the top rectangle
     if (rhs.y > lhs.y)
-        *out++ = rect_t(lhs.x, lhs.y, lhs.width, rhs.y - lhs.y);
+        *out++ = rect_t(lhs.x, lhs.y, lhs.width(), rhs.y - lhs.y);
 
     // compute the bottom rectangle
-    if (lhs.y2() > rhs.y2())
-        *out++ = rect_t(lhs.x, rhs.y2(), lhs.width, lhs.y2() - rhs.y2());
+    if (lhs.y2 > rhs.y2)
+        *out++ = rect_t(lhs.x, rhs.y2, lhs.width(), lhs.y2 - rhs.y2);
 
     const auto y1 = rhs.y > lhs.y ? rhs.y : lhs.y;
-    const auto y2 = rhs.y2() < lhs.y2() ? rhs.y2() : lhs.y2();
+    const auto y2 = rhs.y2 < lhs.y2 ? rhs.y2 : lhs.y2;
 
     if (y2 > y1) {
         const auto rc_height  = y2 - y1;
@@ -80,8 +80,8 @@ difference(const Rect<T> &lhs, const Rect<T> &rhs, Iterator out) {
             *out++ = rect_t(lhs.x, y1, rhs.x - lhs.x, rc_height);
 
         // compute the right rectangle
-        if (lhs.x2() > rhs.x2())
-            *out++ = rect_t(rhs.x2(), y1, lhs.x2() - rhs.x2(), rc_height);
+        if (lhs.x2 > rhs.x2)
+            *out++ = rect_t(rhs.x2, y1, lhs.x2 - rhs.x2, rc_height);
     }
 
     return out;
@@ -91,8 +91,8 @@ template<typename T> constexpr bool
 operator==(const Rect<T> &lhs, const Rect<T> &rhs) noexcept {
     return lhs.x == rhs.x
         && lhs.y == rhs.y
-        && lhs.width == rhs.width
-        && lhs.height == rhs.height;
+        && lhs.x2 == rhs.x2
+        && lhs.y2 == rhs.y2;
 }
 
 template<typename T> constexpr bool
@@ -122,6 +122,6 @@ operator-(const Rect<T> &lhs, const Rect<T> &rhs) {
 template<typename Os, typename T> Os&
 operator<<(Os &os, const Rect<T> &r) {
     static constexpr auto *c = ", ";
-    os << "Rect(" << r.x << c << r.y << c << r.width << c << r.height << ")";
+    os << "Rect(" << r.x << c << r.y << c << r.width() << c << r.height() << ")";
     return os;
 }

@@ -13,8 +13,8 @@ bounding_box(ForwardIterator begin, ForwardIterator end) noexcept {
 
     auto min_x = begin->x;
     auto min_y = begin->y;
-    auto max_x2 = begin->x2();
-    auto max_y2 = begin->y2();
+    auto max_x2 = begin->x2;
+    auto max_y2 = begin->y2;
 
     ++begin;
 
@@ -25,11 +25,11 @@ bounding_box(ForwardIterator begin, ForwardIterator end) noexcept {
         if (r.y < min_y)
             min_y = r.y;
 
-        if (r.x2() > max_x2)
-            max_x2 = r.x2();
+        if (r.x2 > max_x2)
+            max_x2 = r.x2;
 
-        if (r.y2() > max_y2)
-            max_y2 = r.y2();
+        if (r.y2 > max_y2)
+            max_y2 = r.y2;
     });
 
     return Rect(min_x, min_y, max_x2 - min_x, max_y2 - min_y);
@@ -41,11 +41,14 @@ total_area(ForwardIterator begin, ForwardIterator end) {
 
     using size_type = decltype(box.x);
 
-    std::vector m(box.height, std::vector<size_type>(box.width));
+    std::vector m(box.height(), std::vector<size_type>(box.width()));
     std::for_each(begin, end, [&] (const auto &r) {
-        for (size_type y{}; y < r.height; ++y)
-            for (size_type x{}; x < r.width; ++x)
+        const auto h = r.height();
+        for (size_type y{}; y < h; ++y) {
+            const auto w = r.width();
+            for (size_type x{}; x < w; ++x)
                 m[r.y + y - box.y][r.x + x - box.x] = 1;
+        }
     });
 
     return std::accumulate(m.cbegin(), m.cend(), size_type{}, [] (auto acc, const auto &vec) {

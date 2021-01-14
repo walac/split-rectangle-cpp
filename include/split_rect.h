@@ -19,12 +19,12 @@ enum class EventType : std::uint8_t {
 
 template<typename T>
 struct Event {
-    Rect<T> rect;
     std::uint64_t id;
+    Rect<T> rect;
     EventType type;
 
     constexpr Event(const Rect<T> &r, EventType type, std::uint64_t id = 0) noexcept
-        : rect(r), id(id), type(type)
+        : id(id), rect(r), type(type)
     {}
 
     constexpr Event() noexcept
@@ -47,8 +47,8 @@ operator<<(Os &os, const Event<T> &evt) {
 // the logic here is inverted because priority_queue is a max heap
 template<typename T> constexpr bool
 operator<(const Event<T> &lhs, const Event<T> &rhs) noexcept {
-    const auto lhs_x = lhs.type == EventType::ENTER ? lhs.rect.x : lhs.rect.x2();
-    const auto rhs_x = rhs.type == EventType::ENTER ? rhs.rect.x : rhs.rect.x2();
+    const auto lhs_x = lhs.type == EventType::ENTER ? lhs.rect.x : lhs.rect.x2;
+    const auto rhs_x = rhs.type == EventType::ENTER ? rhs.rect.x : rhs.rect.x2;
 
     if (lhs_x == rhs_x) {
         if (lhs.type == rhs.type)
@@ -101,7 +101,7 @@ OutIterator split_rectangles(Iterator begin, Iterator end, OutIterator result) {
     };
 
     auto new_interval = [](const rect_t &r) {
-        return boost::icl::interval<size_type>::right_open(r.y, r.y2());
+        return boost::icl::interval<size_type>::right_open(r.y, r.y2);
     };
 
     std::for_each(begin, end, [&] (const auto &r) {
@@ -151,7 +151,7 @@ OutIterator split_rectangles(Iterator begin, Iterator end, OutIterator result) {
                 std::for_each(diffs.begin(), dend, [&] (const auto &r) {
                     // rectangles that lie behind the collision box can't
                     // intersect with any other
-                    if (r.x2() > col_box.x)
+                    if (r.x2 > col_box.x)
                         add_event(r);
                     else
                         *result++ = r;
