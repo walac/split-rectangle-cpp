@@ -62,7 +62,7 @@ operator<(const Event<T> &lhs, const Event<T> &rhs) noexcept {
 // interval_map requires this
 template<typename T> constexpr bool
 operator==(const Event<T> &lhs, const Event<T> &rhs) noexcept {
-    return lhs.type == rhs.type && lhs.rect == rhs.rect && lhs.id == rhs.id;
+    return lhs.type == rhs.type && lhs.id == rhs.id;
 }
 
 template<
