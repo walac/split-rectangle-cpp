@@ -10,7 +10,7 @@
 #include "split_rect.h"
 
 constexpr auto SEED = 13607;
-constexpr auto N = 100;
+constexpr auto N = 500;
 
 template<typename T>
 std::vector<Rect<T>> gen_data() {
