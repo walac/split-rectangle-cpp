@@ -127,14 +127,8 @@ OutIterator split_rectangles(Iterator begin, Iterator end, OutIterator result) {
 
         // skip if the rectangle was previously splitted
         auto it = removed.find(ev.id);
-        if (it != removed.end()) {
-            // if it is a leave event, that's the last time
-            // we encounter this event id
-            if (ev.type == EventType::LEAVE)
-                removed.erase(it);
-
+        if (it != removed.end())
             continue;
-        }
 
         const auto interval(new_interval(ev.rect));
 
