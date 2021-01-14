@@ -146,13 +146,19 @@ OutIterator split_rectangles(Iterator begin, Iterator end, OutIterator result) {
 
                 // Add the collision_box and all the split rectangles to
                 // the list of rectangles to process
-                add_event(collision_box(ev.rect, rintersect.rect));
+                auto col_box(collision_box(ev.rect, rintersect.rect));
+                add_event(col_box);
 
                 auto dend = difference(ev.rect, rintersect.rect, diffs.begin());
                 dend = difference(rintersect.rect, ev.rect, dend);
 
                 std::for_each(diffs.begin(), dend, [&] (const auto &r) {
-                    add_event(r);
+                    // rectangles that lie behind the collision box can't
+                    // intersect with any other
+                    if (r.x2() > col_box.x)
+                        add_event(r);
+                    else
+                        *result++ = r;
                 });
 
                 // the rectangles associated with these events no longer exist,
