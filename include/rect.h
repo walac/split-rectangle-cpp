@@ -5,14 +5,14 @@
 
 template<typename T>
 struct Rect {
-    T x, y, x2, y2;
+    T x, x2, y, y2;
 
     constexpr Rect() noexcept
-        : x(0), y(0), x2(0), y2(0)
+        : x(0), x2(0), y(0), y2(0)
     {}
 
     constexpr Rect(T x, T y, T width, T height) noexcept
-        : x(x), y(y), x2(x + width), y2(y + height)
+        : x(x), x2(x + width), y(y), y2(y + height)
     {}
 
     constexpr T width() const noexcept {
