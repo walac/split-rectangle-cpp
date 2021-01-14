@@ -1,11 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 #include <iterator>
 #include <memory>
 #include <unordered_set>
 #include <queue>
 #include <algorithm>
+#include <type_traits>
 #include <boost/icl/interval_map.hpp>
 
 #include "rect.h"
@@ -69,7 +71,7 @@ template<
     template<typename T> typename Allocator = std::allocator
 >
 OutIterator split_rectangles(Iterator begin, Iterator end, OutIterator result) {
-    using rect_t = std::__remove_cvref_t<decltype(*begin)>;
+    using rect_t = std::remove_cv_t<std::remove_reference_t<decltype(*begin)>>;
     using size_type = decltype(begin->x);
     using event_t = Event<size_type>;
 
