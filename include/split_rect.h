@@ -19,16 +19,19 @@ enum class EventType : std::uint8_t {
 
 template<typename T>
 struct Event {
+    // The the x value used by operator< to avoid recomputing
+    // it in every comparison.
+    T xcmp;
+    EventType type;
     std::uint64_t id;
     Rect<T> rect;
-    EventType type;
 
     constexpr Event(const Rect<T> &r, EventType type, std::uint64_t id = 0) noexcept
-        : id(id), rect(r), type(type)
+        : xcmp(type == EventType::ENTER ? r.x : r.x2), type(type), id(id), rect(r)
     {}
 
     constexpr Event() noexcept
-        : id(0), type(EventType::ENTER)
+        : type(EventType::ENTER), id(0)
     {}
 };
 
@@ -47,9 +50,8 @@ operator<<(Os &os, const Event<T> &evt) {
 // the logic here is inverted because priority_queue is a max heap
 template<typename T> constexpr bool
 operator<(const Event<T> &lhs, const Event<T> &rhs) noexcept {
-    const auto lhs_x = lhs.type == EventType::ENTER ? lhs.rect.x : lhs.rect.x2;
-    const auto rhs_x = rhs.type == EventType::ENTER ? rhs.rect.x : rhs.rect.x2;
-
+    const auto lhs_x = lhs.xcmp;
+    const auto rhs_x = rhs.xcmp;
     if (lhs_x == rhs_x) {
         if (lhs.type == rhs.type)
             return lhs.rect.y > rhs.rect.y;
