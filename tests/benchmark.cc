@@ -1,7 +1,6 @@
 #include <random>
 #include <vector>
 #include <algorithm>
-#include <boost/pool/pool_alloc.hpp>
 
 #define CATCH_CONFIG_MAIN
 #define CATCH_CONFIG_ENABLE_BENCHMARKING
@@ -27,11 +26,8 @@ std::vector<Rect<T>> gen_data() {
     return recs;
 }
 
-template<typename T>
-using pool_allocator = boost::fast_pool_allocator<T>;
-
 TEST_CASE("split_rectangles") {
-    BENCHMARK_ADVANCED("default allocator")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("default")(Catch::Benchmark::Chronometer meter) {
         auto recs = gen_data<int>();
         std::vector<Rect<int>> result;
         auto inserter = std::back_inserter(recs);
@@ -41,19 +37,4 @@ TEST_CASE("split_rectangles") {
         });
     };
 
-#if 0
-    BENCHMARK_ADVANCED("boost pool allocator")(Catch::Benchmark::Chronometer meter) {
-        auto recs = gen_data<int>();
-        std::vector<Rect<int>> result;
-        auto inserter = std::back_inserter(recs);
-
-        meter.measure([&] {
-            return split_rectangles<
-                decltype(recs.cbegin()),
-                decltype(inserter),
-                pool_allocator
-            >(recs.cbegin(), recs.cend(), std::back_inserter(result));
-        });
-    };
-#endif
 }
