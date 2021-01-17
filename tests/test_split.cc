@@ -56,6 +56,7 @@ test_split_rectangles() {
         auto rend = result.cend();
 
         REQUIRE_FALSE(any_intersection(rbegin, rend));
+        std::cout << tc << "   " << result << std::endl;
         REQUIRE(sum_areas(rbegin, rend) == total_area(tbegin, tend));
         REQUIRE(bounding_box(rbegin, rend) == bounding_box(tbegin, tend));
     }
@@ -77,13 +78,13 @@ test_ordering() {
         {{1, 2, 2, 1}, EventType::LEAVE},
     };
 
-    std::priority_queue<Event<T>> prio;
+    std::set<Event<T>> prio;
     for (const auto &e: events)
-        prio.push(e);
+        prio.insert(e);
 
     for (const auto &e: events) {
-        REQUIRE(e == prio.top());
-        prio.pop();
+        REQUIRE(e == *prio.begin());
+        prio.erase(prio.begin());
     }
 }
 
