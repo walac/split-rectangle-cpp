@@ -56,7 +56,6 @@ test_split_rectangles() {
         auto rend = result.cend();
 
         REQUIRE_FALSE(any_intersection(rbegin, rend));
-        std::cout << tc << "   " << result << std::endl;
         REQUIRE(sum_areas(rbegin, rend) == total_area(tbegin, tend));
         REQUIRE(bounding_box(rbegin, rend) == bounding_box(tbegin, tend));
     }

@@ -68,6 +68,11 @@ operator==(const Event<T> &lhs, const Event<T> &rhs) noexcept {
     return lhs.type == rhs.type && lhs.id == rhs.id;
 }
 
+template<typename T> constexpr bool
+operator!=(const Event<T> &lhs, const Event<T> &rhs) noexcept {
+    return !(lhs == rhs);
+}
+
 template<
     typename Iterator,
     typename OutIterator,
@@ -79,7 +84,7 @@ OutIterator split_rectangles(Iterator begin, Iterator end, OutIterator result) {
     using event_t = Event<size_type>;
 
     // queue of events
-    std::set<
+    std::multiset<
         event_t
     > events;
 
