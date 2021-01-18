@@ -10,6 +10,7 @@
 #include <type_traits>
 #include <set>
 #include <boost/icl/interval_map.hpp>
+#include <boost/pool/pool_alloc.hpp>
 
 #include "rect.h"
 
@@ -73,10 +74,12 @@ operator!=(const Event<T> &lhs, const Event<T> &rhs) noexcept {
     return !(lhs == rhs);
 }
 
+template<typename T>
+using interval_allocator = boost::fast_pool_allocator<T>;
+
 template<
     typename Iterator,
-    typename OutIterator,
-    template<typename T> typename Allocator = std::allocator
+    typename OutIterator
 >
 OutIterator split_rectangles(Iterator begin, Iterator end, OutIterator result) {
     using rect_t = std::remove_cv_t<std::remove_reference_t<decltype(*begin)>>;
@@ -85,19 +88,16 @@ OutIterator split_rectangles(Iterator begin, Iterator end, OutIterator result) {
 
     // queue of events
     std::multiset<
-        event_t
+        event_t,
+        std::less<event_t>,
+        boost::fast_pool_allocator<event_t>
     > events;
 
     // control the events of rects that are no longer valid
     // this is necessary because a rect becomes invalid (because
     // we splitted it) in an enter event, we should mark the leave
     // event of this specific rectangle as invalid as well
-    std::unordered_set<
-        std::uint64_t,
-        std::hash<std::uint64_t>,
-        std::equal_to<std::uint64_t>,
-        Allocator<std::uint64_t>
-    > removed;
+    std::unordered_set<std::uint64_t> removed;
 
     std::uint64_t cur_id = 0;
     // create an enter and leave events for the rectangle
@@ -124,7 +124,7 @@ OutIterator split_rectangles(Iterator begin, Iterator end, OutIterator result) {
         ICL_SECTION_INSTANCE(boost::icl::inter_section, size_type),
         ICL_INTERVAL_INSTANCE(ICL_INTERVAL_DEFAULT, size_type,
             ICL_COMPARE_INSTANCE(ICL_COMPARE_DEFAULT, size_type)),
-        Allocator
+        interval_allocator
     > intervals;
 
     // the rects difference operations produces no more than 8 new rectangles
